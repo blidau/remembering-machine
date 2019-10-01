@@ -19,6 +19,7 @@ def take_picture():
     """
     Take a picture.
     """
+    camera.rotation = 270
     camera.resolution = (1024, 768)
     camera.start_preview()
     sleep(2)
