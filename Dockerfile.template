@@ -1,0 +1,19 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-python:3.7
+
+RUN install_packages libjpeg8-dev zlib1g-dev g++ python3-smbus
+
+ENV PYTHONUNBUFFERED 1
+# Set READTHEDOCS to True to avoid picamera Raspberry Pi check 
+ENV READTHEDOCS True
+
+COPY ./requirements/base.txt /code/base.txt
+COPY ./requirements/prod.txt /code/prod.txt
+RUN pip install -Ur /code/prod.txt
+
+COPY . /code/
+WORKDIR /code/
+
+# Enable udevd so that plugged dynamic hardware devices show up in our container.
+ENV UDEV=1
+
+CMD ["python","src/remembering.py"]
