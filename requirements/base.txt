@@ -1,0 +1,4 @@
+Pillow
+buttonshim
+inky
+picamera

@@ -1,0 +1,8 @@
+-r base.txt
+
+# imports sorting
+isort
+
+# linting
+flake8
+pylint
