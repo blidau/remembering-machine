@@ -1,4 +1,6 @@
+import os
 import signal
+import uuid
 from time import sleep
 
 import buttonshim
@@ -10,10 +12,11 @@ camera = PiCamera()
 
 X_RESOLUTION = 1024
 Y_RESOLUTION = 768
-IMAGE_FILE = 'image.jpg'
+IMAGES_DIR = '/data/images'
 X_DISPLAY = 400
 Y_DISPLAY = 300
 DISPLAY_COLOUR = 'black'
+
 
 def take_picture():
     """
@@ -23,16 +26,20 @@ def take_picture():
     camera.resolution = (1024, 768)
     camera.start_preview()
     sleep(2)
-    camera.capture(IMAGE_FILE)
+    os.makedirs(IMAGES_DIR, exist_ok=True)
+    filename = f'{uuid.uuid4()}.png'
+    camera.capture(f'{IMAGES_DIR}/{filename}')
+
+    return filename
 
 
-def display_picture():
+def display_picture(filename):
     """
     Display the picture. Modified from the Pimoroni Inky library dither-image-what.py example.
     """
     inky_display = InkyWHAT(DISPLAY_COLOUR)
     inky_display.set_border(inky_display.WHITE)
-    display_image = Image.open(IMAGE_FILE)
+    display_image = Image.open(f'{IMAGES_DIR}/{filename}')
     width, height = display_image.size
     height_new = Y_DISPLAY
     width_new = int((float(width) / height) * height_new)
@@ -55,8 +62,8 @@ def take_and_display_picture(button, pressed):
     """
     Takes a picture and displays it on the Inky wHAT screen.
     """
-    take_picture()
-    display_picture()
+    filename = take_picture()
+    display_picture(filename)
 
 
 signal.pause()
