@@ -3,6 +3,7 @@ import signal
 import uuid
 from time import sleep
 
+import boto3
 import buttonshim
 from inky import InkyWHAT
 from picamera import PiCamera
@@ -12,10 +13,14 @@ camera = PiCamera()
 
 X_RESOLUTION = 1024
 Y_RESOLUTION = 768
-IMAGES_DIR = '/data/images'
+IMAGES_DIR = os.getenv('IMAGES_DIR')
 X_DISPLAY = 400
 Y_DISPLAY = 300
 DISPLAY_COLOUR = 'black'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+S3_BUCKET = os.getenv('S3_BUCKET')
+S3_FOLDER = os.getenv('S3_FOLDER')
 
 
 def take_picture():
@@ -31,6 +36,29 @@ def take_picture():
     camera.capture(f'{IMAGES_DIR}/{filename}')
 
     return filename
+
+
+def get_s3_client():
+    """
+    Get the S3 client.
+    """
+    return boto3.client(
+        's3',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    )
+
+
+def save_image_to_s3(filename):
+    """
+    Save image to S3.
+    """
+    client = get_s3_client()
+    client.upload_file(
+        f'{IMAGES_DIR}/{filename}',
+        S3_BUCKET,
+        f'{S3_FOLDER}/{filename}',
+    )
 
 
 def display_picture(filename):
@@ -63,6 +91,7 @@ def take_and_display_picture(button, pressed):
     Takes a picture and displays it on the Inky wHAT screen.
     """
     filename = take_picture()
+    save_image_to_s3(filename)
     display_picture(filename)
 
 
