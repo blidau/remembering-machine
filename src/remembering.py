@@ -27,8 +27,7 @@ def take_picture():
     """
     Take a picture.
     """
-    camera.rotation = 270
-    camera.resolution = (1024, 768)
+    camera.resolution = (768, 1024)
     camera.start_preview()
     sleep(2)
     os.makedirs(IMAGES_DIR, exist_ok=True)
@@ -68,6 +67,7 @@ def display_picture(filename):
     inky_display = InkyWHAT(DISPLAY_COLOUR)
     inky_display.set_border(inky_display.WHITE)
     display_image = Image.open(f'{IMAGES_DIR}/{filename}')
+    display_image = display_image.transpose(Image.ROTATE_90)
     width, height = display_image.size
     height_new = Y_DISPLAY
     width_new = int((float(width) / height) * height_new)
