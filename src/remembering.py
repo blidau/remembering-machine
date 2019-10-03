@@ -60,6 +60,54 @@ def save_image_to_s3(filename):
     )
 
 
+def get_rekognition_client():
+    """
+    Get the Rekognition client.
+    """
+    return boto3.client(
+        'rekognition',
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    )
+
+
+def get_labels(filename):
+    """
+    Get Rekognition labels.
+    """
+    client = get_rekognition_client()
+    labels = client.detect_labels(
+        Image={
+            'S3Object': {
+                'Bucket': S3_BUCKET,
+                'Name': f'{S3_FOLDER}/{filename}',
+            },
+        },
+        MaxLabels=30,
+        MinConfidence=70,
+    )
+    return labels
+
+
+def get_faces(filename):
+    """
+    Get Rekognition faces.
+    """
+    client = get_rekognition_client()
+    faces = client.detect_faces(
+        Image={
+            'S3Object': {
+                'Bucket': S3_BUCKET,
+                'Name': f'{S3_FOLDER}/{filename}',
+            },
+        },
+        Attributes=[
+            'ALL',
+        ]
+    )
+    return faces
+
+
 def display_picture(filename):
     """
     Display the picture. Modified from the Pimoroni Inky library dither-image-what.py example.
@@ -93,6 +141,10 @@ def take_and_display_picture(button, pressed):
     filename = take_picture()
     save_image_to_s3(filename)
     display_picture(filename)
+    labels = get_labels(filename)
+    print(labels)
+    faces = get_faces(filename)
+    print(faces)
 
 
 signal.pause()
