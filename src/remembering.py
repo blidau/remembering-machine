@@ -11,8 +11,8 @@ from PIL import Image
 
 camera = PiCamera()
 
-X_RESOLUTION = 1024
-Y_RESOLUTION = 768
+X_RESOLUTION = 768
+Y_RESOLUTION = 1024
 IMAGES_DIR = os.getenv('IMAGES_DIR')
 X_DISPLAY = 400
 Y_DISPLAY = 300
@@ -25,7 +25,7 @@ def take_picture():
     """
     Take a picture.
     """
-    camera.resolution = (768, 1024)
+    camera.resolution = (X_RESOLUTION, Y_RESOLUTION)
     camera.start_preview()
     sleep(2)
     os.makedirs(IMAGES_DIR, exist_ok=True)
