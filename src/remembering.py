@@ -14,8 +14,8 @@ camera = PiCamera()
 X_RESOLUTION = 768
 Y_RESOLUTION = 1024
 IMAGES_DIR = os.getenv('IMAGES_DIR')
-X_DISPLAY = 400
-Y_DISPLAY = 300
+HEIGHT = 400
+WIDTH = 300
 DISPLAY_COLOUR = 'black'
 S3_BUCKET = os.getenv('S3_BUCKET')
 S3_FOLDER = os.getenv('S3_FOLDER')
@@ -30,7 +30,7 @@ def take_picture():
     sleep(2)
     os.makedirs(IMAGES_DIR, exist_ok=True)
     filename = f'{uuid.uuid4()}.png'
-    camera.capture(f'{IMAGES_DIR}/{filename}')
+    camera.capture(f'{IMAGES_DIR}/{filename}', resize=(WIDTH, HEIGHT))
 
     return filename
 
@@ -110,16 +110,6 @@ def display_picture(filename):
     inky_display.set_border(inky_display.WHITE)
     display_image = Image.open(f'{IMAGES_DIR}/{filename}')
     display_image = display_image.transpose(Image.ROTATE_90)
-    width, height = display_image.size
-    height_new = Y_DISPLAY
-    width_new = int((float(width) / height) * height_new)
-    width_cropped = X_DISPLAY
-    display_image = display_image.resize((width_new, height_new), resample=Image.LANCZOS)
-    x0 = (width_new - width_cropped) / 2
-    x1 = x0 + width_cropped
-    y0 = 0
-    y1 = height_new
-    display_image = display_image.crop((x0, y0, x1, y1))
     palette_image = Image.new('P', (1, 1))
     palette_image.putpalette((255, 255, 255, 0, 0, 0, 255, 0, 0) + (0, 0, 0) * 252)
     display_image = display_image.convert('RGB').quantize(palette=palette_image)
